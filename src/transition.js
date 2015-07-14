@@ -14,6 +14,8 @@ define(function (require, exports, module) {
         }
 
         exports.simulation = function(startState, transition, observation, probabilityOf, numSteps){
+            /* Runs MCMC algorithm using set exports.metropolis function
+            */
             var currentState = startState
             for (var step = 0; step < numSteps; step++){
                 var possibleState = transition(state)
