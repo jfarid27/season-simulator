@@ -19,6 +19,7 @@ module.exports = function(config) {
     files: [
       {pattern: 'test/**/*Spec.js', included: false},
       {pattern: 'src/**/*.js', included: false},
+      {pattern: 'node_modules/amdefine/amdefine.js', included: false},
       'test/test-main.js'
     ],
 

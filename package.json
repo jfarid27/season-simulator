@@ -26,6 +26,7 @@
     "karma-requirejs": "^0.2.2"
   },
   "dependencies": {
+    "amdefine": "^1.0.0",
     "requirejs": "^2.1.18"
   }
 }
