@@ -14,15 +14,14 @@ require.config({
 
   // example of using a couple path translations (paths), to allow us to refer to different library dependencies, without using relative paths
   paths: {
-    //'underscore': '../lib/underscore',
+    'underscore': './node_modules/underscore/underscore',
   },
 
   // example of using a shim, to load non AMD libraries (such as underscore)
   shim: {
-    /*'underscore': {
+    'underscore': {
       exports: '_'
     }
-    */
   },
 
   // dynamically load all test files
