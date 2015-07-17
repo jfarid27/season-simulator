@@ -11,6 +11,41 @@ define(function (require, exports, module) {
         beforeEach(function(){
             instance = require('src/seasons')(_)
         })
+
+        describe("generateFinalGamesList", function(){
+            describe("scenario test", function(){
+
+                describe("when given a list of games", function(){
+                    var gamesList, results
+                    beforeEach(function(){
+                        gamesList = [
+                            {home:'liverbird', away:'soccerpidgeons'},
+                            {home:'liverbird', away:'soccerpidgeons'},
+                            {home:'liverbird', away:'soccerpidgeons'},
+                            {home:'liverbird', away:'soccerpidgeons'},
+                            {away:'liverbird', home:'soccerpidgeons'},
+                            {away:'liverbird', home:'soccerpidgeons'},
+                            {away:'liverbird', home:'soccerpidgeons'},
+                        ]
+
+                        results = instance.generateFinalGamesList(gamesList)
+                    })
+                    
+                    it("should change all the outcomes in games list to reflect home wins", function(){
+
+                        var expected = results.reduce(function(agg, game){
+
+                            return agg && (game.outcome === "W")
+
+                        }, true)
+
+                        expect(expected).toBeTruthy()
+
+                    })
+                })
+
+            })
+        })
         describe("generateFinalTable", function(){
             describe("scenario test", function(){
                 describe("when given a table and games list", function(){

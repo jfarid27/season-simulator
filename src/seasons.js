@@ -3,12 +3,39 @@ if ( typeof define !== 'function') {
 }
 define(function (require, exports, module) {
 
-    var seasons = function(_){
-
-        var table, gamesLeft
+    var seasons = function(_, MCMC){
 
         var exports = function(){
             return
+        }
+
+        exports.simulation = function(season, steps, observable){
+
+        }
+
+        exports.generateFinalGamesList = function(games){
+            /* Function to add winning outcomes to each game in specified games
+            */
+            return games.map(function(oldGame){
+                var game = _.extend({}, oldGame)
+                game.outcome = "W"
+                return game
+            })
+        }
+
+
+        exports.transitionRandomGame = function(games, transition){
+
+            var selected = _.random(games.length-1)
+
+            return games.map(function(game, index){
+
+                var output = game
+                if (index == selected){
+                    output = transition(game)
+                }
+                return output
+            })
         }
 
         exports.generateFinalTable = function(seasonTable, games){
@@ -26,18 +53,6 @@ define(function (require, exports, module) {
                 return _.pairs(seasonTableByTeam).map(function(pair){ return pair[1]})
 
             }, seasonTable)
-        }
-
-        exports.season = function(){
-            if (arguments){
-                initialTable = arguments[0].table
-                gamesLeft = arguments[0].gamesLeft
-                return exports
-            }
-            return {
-                table: initialTable,
-                gamesLeft: gamesLeft
-            }
         }
 
         return exports
