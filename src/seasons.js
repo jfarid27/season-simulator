@@ -11,6 +11,18 @@ define(function (require, exports, module) {
 
         exports.simulation = function(season, steps, observable){
 
+            var endOfSeasonState = {
+                table: generateFinalTable(season.table),
+                games: generateFinalGamesList(season.games)
+            }
+
+        }
+
+        exports.randomGameOutcomeSoccer = function(){
+            /* Returns random game outcome using W/L/T
+            */
+            var possibilities = ["W", "L", "T"]
+            return possibilities[_.random(3)]
         }
 
         exports.generateFinalGamesList = function(games){
