@@ -13,18 +13,16 @@ define(function (require, exports, module) {
             return
         }
 
-        exports.simulation = function(startState, transition, observation, probabilityOf, numSteps){
+        exports.simulation = function(startState, transition, observation, probabilityOfMove, numSteps){
             /* Runs MCMC algorithm using set exports.metropolis function
             */
             var currentState = startState
             for (var step = 0; step < numSteps; step++){
                 var possibleState = transition(state)
-                var loopBack = probabilityOf(currentState)
-                var transition = probabilityOf(possibleState)
+                var moveProbability = probabilityOfMove(currentState, possibleState)
                 var observationCount = 0
-
-                if (exports.metropolis(loopBack, transition)){
-                    var currentState = possibleState
+                if (exports.metropolis(1, moveProbability)){
+                    var currentState = updateState(currentState, possibleState)
                     observationCount += observation(currentState)
                 }
             }
