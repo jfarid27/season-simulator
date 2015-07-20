@@ -11,6 +11,289 @@ define(function (require, exports, module) {
         beforeEach(function(){
             instance = require('src/seasons')(_)
         })
+        describe("addGameToTable", function(){
+            describe("scenario test", function(){
+
+                describe("when given a table", function(){
+
+                    var mockTable
+                    beforeEach(function(){
+                        mockTable = [
+                            {name: 'liverbird', wins:4, losses:5, draws: 1},
+                            {name: 'soccerpidgeons', wins:7, losses:3, draws: 4}
+                        ]
+
+                    })
+
+                    describe("and a win transition", function(){
+
+                        var game, result, keyVals, keyTable
+                        beforeEach(function(){
+                            game = {home: 'liverbird', away: 'soccerpidgeons', outcome: 'W'}
+                            result = instance.addGameToTable(mockTable, game)
+                            keyVals = result.map(function(j){ 
+                                return [j.name, j]
+                            })
+                            keyTable = _.object(keyVals)
+                        })
+
+                        it("should add win to home team", function(){
+                            expect(keyTable['liverbird'].wins).toBe(5)
+
+                        })
+                        it("should add loss to away team", function(){
+                            expect(keyTable['soccerpidgeons'].losses).toBe(4)
+                        })
+
+                    })
+                    describe("and a draw transition", function(){
+                        var game, result, keyVals, keyTable
+                        beforeEach(function(){
+                            game = {home: 'liverbird', away: 'soccerpidgeons', outcome: 'T'}
+                            result = instance.addGameToTable(mockTable, game)
+                            keyVals = result.map(function(j){ 
+                                return [j.name, j]
+                            })
+                            keyTable = _.object(keyVals)
+                        })
+
+                        it("should add draw to home team", function(){
+                            expect(keyTable['liverbird'].draws).toBe(2)
+
+                        })
+                        it("should add draw to away team", function(){
+                            expect(keyTable['soccerpidgeons'].draws).toBe(5)
+                        })
+
+                    })
+                    describe("and a loss transition", function(){
+                        var game, result, keyVals, keyTable
+                        beforeEach(function(){
+                            game = {home: 'liverbird', away: 'soccerpidgeons', outcome: 'L'}
+                            result = instance.addGameToTable(mockTable, game)
+                            keyVals = result.map(function(j){ 
+                                return [j.name, j]
+                            })
+                            keyTable = _.object(keyVals)
+                        })
+
+                        it("should add loss to home team", function(){
+                            expect(keyTable['liverbird'].losses).toBe(6)
+
+                        })
+                        it("should add win to away team", function(){
+                            expect(keyTable['soccerpidgeons'].wins).toBe(8)
+                        })
+                    })
+
+                })
+
+            })
+        })
+
+        describe("removeGameFromTable", function(){
+            describe("scenario test", function(){
+
+                describe("when given a table", function(){
+
+                    var mockTable
+                    beforeEach(function(){
+                        mockTable = [
+                            {name: 'liverbird', wins:4, losses:5, draws: 1},
+                            {name: 'soccerpidgeons', wins:7, losses:3, draws: 4}
+                        ]
+
+                    })
+
+                    describe("and a win transition", function(){
+
+                        var game, result, keyVals, keyTable
+                        beforeEach(function(){
+                            game = {home: 'liverbird', away: 'soccerpidgeons', outcome: 'W'}
+                            result = instance.removeGameFromTable(mockTable, game)
+                            keyVals = result.map(function(j){ 
+                                return [j.name, j]
+                            })
+                            keyTable = _.object(keyVals)
+                        })
+
+                        it("should remove win from home team", function(){
+                            expect(keyTable['liverbird'].wins).toBe(3)
+
+                        })
+                        it("should remove loss from away team", function(){
+                            expect(keyTable['soccerpidgeons'].losses).toBe(2)
+                        })
+
+                    })
+                    describe("and a draw transition", function(){
+                        var game, result, keyVals, keyTable
+                        beforeEach(function(){
+                            game = {home: 'liverbird', away: 'soccerpidgeons', outcome: 'T'}
+                            result = instance.removeGameFromTable(mockTable, game)
+                            keyVals = result.map(function(j){ 
+                                return [j.name, j]
+                            })
+                            keyTable = _.object(keyVals)
+                        })
+
+                        it("should remove draw from home team", function(){
+                            expect(keyTable['liverbird'].draws).toBe(0)
+
+                        })
+                        it("should remove draw from away team", function(){
+                            expect(keyTable['soccerpidgeons'].draws).toBe(3)
+                        })
+
+                    })
+                    describe("and a loss transition", function(){
+                        var game, result, keyVals, keyTable
+                        beforeEach(function(){
+                            game = {home: 'liverbird', away: 'soccerpidgeons', outcome: 'L'}
+                            result = instance.removeGameFromTable(mockTable, game)
+                            keyVals = result.map(function(j){ 
+                                return [j.name, j]
+                            })
+                            keyTable = _.object(keyVals)
+                        })
+
+                        it("should remove loss from home team", function(){
+                            expect(keyTable['liverbird'].losses).toBe(4)
+
+                        })
+                        it("should remove win from away team", function(){
+                            expect(keyTable['soccerpidgeons'].wins).toBe(6)
+                        })
+                    })
+
+                })
+
+            })
+        })
+
+        describe("updateSeasonWithGame", function(){
+            describe("scenario test", function(){
+                describe("when given season and transitionState", function(){
+                    var mockSeason
+                    beforeEach(function(){
+                        mockSeason = {
+                            table: [
+                                {name: 'liverbird', wins:4, losses:5, draws: 1},
+                                {name: 'soccerpidgeons', wins:7, losses:3, draws: 4}
+                            ],
+                            games: [
+                                {home:'liverbird', away:'soccerpidgeons', outcome: "W"},
+                                {home:'liverbird', away:'soccerpidgeons', outcome: "L"},
+                                {away:'liverbird', home:'soccerpidgeons', outcome: "T"},
+                                {away:'liverbird', home:'soccerpidgeons', outcome: "W"}
+
+                            ]
+                        }
+                        
+                    })
+                    describe("with win transition", function(){
+                        var mockTransition, result
+                        beforeEach(function(){
+                            mockTransition = {
+                                outcome: "W",
+                                probability: .2,
+                                gameIndex: 1
+                            }
+                            result = instance
+                                .updateSeasonWithGame(mockSeason, mockTransition)
+                        })
+                        it("should return season games with updated data from transitionState", function(){
+                        })
+                        it("should return season table with updated data from transitionState", function(){
+                        })
+                    })
+                })
+            })
+        })
+            
+        describe("generateRandomTransition", function(){
+
+            describe("scenario test", function(){
+
+                describe("when given arguments and a current season state", function(){
+
+                    var result, current, selectRG, rGameOutcome, p
+                    beforeEach(function(){
+
+                        current = {
+                            table: [],
+                            games: [
+                                {},
+                                {
+                                    outcome: "previous outcome"
+                                }
+                            ]
+                        }
+
+                        selectRG = function(){
+                            return 1
+                        }
+                        rGameOutcome = function(){
+                            return "gameOutcome"
+                        }
+                        p = function(){
+                            return "computedTransitionProbability"
+                        }
+
+                        result = instance
+                            .generatePossibleTransition(current, selectRG,
+                                rGameOutcome, p) 
+
+                    })
+
+                    it("should return a new season with selected game updated", function(){
+                        expect(result.gameIndex).toBe(1)
+                        expect(result.outcome).toBe("gameOutcome")
+                        expect(result.probability).toBe("computedTransitionProbability")
+                    })
+
+                })
+            })
+        })
+
+        describe("tableTransitionProbabilityEqual", function(){
+
+            describe("when called", function(){
+
+                var result
+                beforeEach(function(){
+                    result = instance.tableTransitionProbabilityEqual()
+                })
+
+                it("should return equal probabilty of W/L/T as 1/3", function(){
+                    var difference = Math.abs(result - 1/3)
+                    expect(difference < .001).toBe(true)
+                })
+
+            })
+
+        })
+
+        describe("tableTransitionProbabilityOdds", function(){
+
+            describe("when given State and transitionState", function(){
+
+                var mockState, mockTransitionState, result
+                beforeEach(function(){
+                    mockState = "mockState"
+                    mockTransitionState = { probability: "setProbability" }
+                    result = instance
+                        .tableTransitionProbabilityOdds(mockState, mockTransitionState)
+
+                })
+
+                it("should return transitionStates probability", function(){
+                    expect(result).toBe("setProbability")
+                })
+
+            })
+
+        })
 
         describe("applyGamesToTableSoccer", function(){
 

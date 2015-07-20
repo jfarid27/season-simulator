@@ -18,6 +18,103 @@ define(function (require, exports, module) {
 
         }
 
+        exports.selectRandomGame = function(games, randomGameOutcome){
+        /* Returns index of a random game in games list
+        */
+            return _.random(games.length-1)
+        }
+
+        exports.generatePossibleTransition = function(season, selectRandomGame, 
+            randomGameOutcome, probability){
+        /* Returns new transition object from specified season object
+        */
+            return {
+                gameIndex: selectRandomGame(season.games),
+                outcome: randomGameOutcome(),
+                probability: probability() 
+            }
+
+        }
+        exports.addGameToTable = function(table, game){
+            /* Updates points to reflect addition of a game outcome to table
+            */
+            var keyVals = table.map(function(j){ return [j.name, j]})
+            var keyTable = _.object(keyVals)
+            if (game.outcome == "W"){
+                keyTable[game.home].wins++
+                keyTable[game.away].losses++
+            }
+            if (game.outcome == "L"){
+                keyTable[game.home].losses++
+                keyTable[game.away].wins++
+            }
+            if (game.outcome == "T"){
+                keyTable[game.home].draws++
+                keyTable[game.away].draws++
+            }
+            return _.pairs(keyTable).map(function(p){ return p[1] }) 
+        }
+
+        exports.removeGameFromTable = function(table, game){
+            /* Updates points to reflect removal of a game outcome from table
+            */
+            var keyVals = table.map(function(j){ return [j.name, j]})
+            var keyTable = _.object(keyVals)
+            if (game.outcome == "W"){
+                keyTable[game.home].wins--
+                keyTable[game.away].losses--
+            }
+            if (game.outcome == "L"){
+                keyTable[game.home].losses--
+                keyTable[game.away].wins--
+            }
+            if (game.outcome == "T"){
+                keyTable[game.home].draws--
+                keyTable[game.away].draws--
+            }
+            return _.pairs(keyTable).map(function(p){ return p[1] }) 
+        }
+
+        exports.updateSeasonWithGame = function(season, transitionState, add, remove){
+            /* Returns season with updated game using transitionState
+            */
+            var prev = season.games[transitionState.gameIndex]
+
+            season.table = remove(season.table, {home: prev.home, away: prev.away,
+                outcome: prev.outcome
+            })
+            season.table = add(season.table, {home: prev.home, away: prev.away,
+                outcome: transitionState.outcome
+            })
+            
+            season.games[transitionState.gameIndex].outcome = transitionState.outcome
+            
+            return season
+
+        }
+
+        exports.randomGameOutcomeSoccerOdds = function(){
+            /* Returns random game outcome using W/L
+            */
+            var possibilities = ["W", "L"]
+            return possibilities[_.random(2)]
+
+        }
+
+        exports.tableTransitionProbabilityOdds = function(current, transitionState){
+            /* Returns equiprobable transition probability for W/L given 
+               current and new states
+            */
+            return transitionState.probability 
+        }
+
+        exports.tableTransitionProbabilityEqual = function(current, next){
+            /* Returns equiprobable transition probability for W/L/T given 
+               current and new states
+            */
+            return 1/3
+        }
+
         exports.randomGameOutcomeSoccer = function(){
             /* Returns random game outcome using W/L/T
             */
