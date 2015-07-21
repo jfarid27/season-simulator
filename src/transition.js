@@ -13,20 +13,24 @@ define(function (require, exports, module) {
             return
         }
 
-        exports.simulation = function(startState, transition, observation, probabilityOfMove, numSteps){
-            /* Runs MCMC algorithm using set exports.metropolis function
+        exports.simulation = function(startState, transition, updateState, observation,
+            observationCounts, probabilityOfMove, numSteps, cb){
+            /* Runs MCMC algorithm using set exports.metropolis function. Observations are
+               updated each round since transition cannot generate rejectable move. Observable
+               returns both 1 and 0
             */
             var currentState = startState
+            var observationCounts
             for (var step = 0; step < numSteps; step++){
-                var possibleState = transition(state)
+                var possibleState = transition(currentState)
                 var moveProbability = probabilityOfMove(currentState, possibleState)
-                var observationCount = 0
-                if (exports.metropolis(1, moveProbability)){
+                var moveMade = exports.metropolis(1, moveProbability)
+                if (moveMade){
                     var currentState = updateState(currentState, possibleState)
-                    observationCount += observation(currentState)
                 }
+                observationCounts = observation(currentState, observationCounts, {numSteps: numSteps, steps: step})
             }
-            return observationCount / numSteps
+            cb(observationCounts)
         }
 
         exports.metropolis = function(ProbabilityA, ProbabilityB){

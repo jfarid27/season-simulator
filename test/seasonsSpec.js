@@ -26,6 +26,42 @@ define(function (require, exports, module) {
                 ]
             }
         })
+        describe("computePointsSoccer", function(){
+            describe("scenario test", function(){
+                describe("when given a season object", function(){
+                    var result
+                    beforeEach(function(){
+                        mockSeason.table.push({
+                            name: 'mock', wins:7, losses:2, draws: 1
+                        })
+                        result = instance.computePointsSoccer(mockSeason)
+                    })
+                    it("should properly compute points", function(){
+                        expect(result.table[2].points).toBe(22)
+                        expect(result.table[0].points).toBe(0)
+                        expect(result.table[1].points).toBe(0)
+                    })
+                })
+
+            })
+        })
+        describe("computePointsSoccerClub", function(){
+            describe("scenario test", function(){
+                describe("when given a table row", function(){
+                    var result
+                    beforeEach(function(){
+                        mockSeason.table.push({
+                            name: 'mock', wins:7, losses:2, draws: 1
+                        })
+                        result = instance.computePointsSoccerClub(mockSeason.table[2])
+                    })
+                    it("should properly compute points", function(){
+                        expect(result.points).toBe(22)
+                    })
+                })
+
+            })
+        })
         describe("updateSeasonWithGame", function(){
             describe("scenario test", function(){
                 describe("when given a mock transition state with correct updaters", function(){

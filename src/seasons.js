@@ -9,12 +9,49 @@ define(function (require, exports, module) {
             return
         }
 
-        exports.simulation = function(season, steps, observable){
+        exports.computePointsSoccerClub = function(row){
+            /* Returns updated row with computed points
+            */
+            var outcomes = {"wins": 3, "losses": 0, "draws": 1}
+            row.points = 0
+            return _.pairs(outcomes).reduce(function(row, outcome){
 
+                row.points += row[outcome[0]] * outcome[1]
+                return row
+            }, row)
+        }
+
+        exports.computePointsSoccer = function(season){
+            /* Returns season object with table of computed points for each club
+            */
+            season.table.map(exports.computePointsSoccerClub)
+            return season
+        }
+
+        exports.defaultSimulation = function(season, steps, observable, observationCounts, MCMCsimulation, cb){
+
+            var startingGamesList = exports.generateFinalGamesList(season.games)
+            var startingTable = exports.generateFinalTable(season.table, startingGamesList)
             var endOfSeasonState = {
-                table: generateFinalTable(season.table),
-                games: generateFinalGamesList(season.games)
+                table: startingTable,
+                games: startingGamesList
             }
+            var transitionF = function(season){
+                return exports.generatePossibleTransition(season,
+                    exports.selectRandomGame, exports.randomGameOutcomeSoccerOdds,
+                    exports.tableTransitionProbabilityEqual)
+            }
+            var probabilityOfMove = exports.tableTransitionProbabilityEqual
+
+            var updateSeason = function(current, prev){
+                var newSeason = exports.updateSeasonWithGame(current, prev,
+                    exports.addGameToTable, exports.removeGameFromTable)
+
+                return newSeason
+            }
+
+            var result = MCMCsimulation(endOfSeasonState, transitionF, updateSeason,
+                observable, observationCounts, probabilityOfMove, steps, cb)
 
         }
 
@@ -28,9 +65,11 @@ define(function (require, exports, module) {
             randomGameOutcome, probability){
         /* Returns new transition object from specified season object
         */
+            var selectedGame = selectRandomGame(season.games)
+            var previousGameOutcome = season.games[selectedGame].outcome
             return {
                 gameIndex: selectRandomGame(season.games),
-                outcome: randomGameOutcome(),
+                outcome: randomGameOutcome(previousGameOutcome),
                 probability: probability()
             }
 
@@ -97,10 +136,11 @@ define(function (require, exports, module) {
 
         }
 
-        exports.randomGameOutcomeSoccerOdds = function(){
-            /* Returns random game outcome using W/L
+        exports.randomGameOutcomeSoccerOdds = function(current){
+            /* Returns random game outcome transition using W/L/T
             */
-            var possibilities = ["W", "L"]
+            var possibilities = ["W", "L", "T"]
+            var filtered = possibilities.filter(function(outcome){ return outcome !== current})
             return possibilities[_.random(2)]
 
         }
@@ -124,6 +164,13 @@ define(function (require, exports, module) {
             */
             var possibilities = ["W", "L", "T"]
             return possibilities[_.random(3)]
+        }
+
+        exports.randomGameOutcomeSoccerProb = function(){
+            /* Returns random game outcome probability for default random game
+               outcomes
+            */
+            return 1/3
         }
 
         exports.generateFinalGamesList = function(games){
