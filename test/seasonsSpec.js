@@ -7,9 +7,60 @@ define(function (require, exports, module) {
 
     describe("Seasons Module", function(){
 
-        var instance
+        var instance, mockSeason
         beforeEach(function(){
             instance = require('src/seasons')(_)
+            mockSeason = {
+                table: [
+                    {name: 'liverbird', wins:0, losses:0, draws: 0},
+                    {name: 'soccerpidgeons', wins:0, losses:0, draws: 0}
+                ],
+                games: [
+                    {home:'liverbird', away:'soccerpidgeons', 'outcome': "W"},
+                    {home:'liverbird', away:'soccerpidgeons', 'outcome': "W"},
+                    {home:'liverbird', away:'soccerpidgeons', 'outcome': "W"},
+                    {home:'liverbird', away:'soccerpidgeons', 'outcome': "W"},
+                    {away:'liverbird', home:'soccerpidgeons', 'outcome': "W"},
+                    {away:'liverbird', home:'soccerpidgeons', 'outcome': "W"},
+                    {away:'liverbird', home:'soccerpidgeons', 'outcome': "W"}
+                ]
+            }
+        })
+        describe("updateSeasonWithGame", function(){
+            describe("scenario test", function(){
+                describe("when given a mock transition state with correct updaters", function(){
+
+                    var season, transition, add, remove, result
+                    beforeEach(function(){
+
+                        season = mockSeason
+                        transition = {
+                            "outcome": "T",
+                            "gameIndex": 3,
+                        }
+                        add = instance.addGameToTable
+                        remove = instance.removeGameFromTable
+                        result = instance.updateSeasonWithGame(mockSeason, transition, add, remove)
+                    })
+
+                    it("should correctly update table", function(){
+                        keyVals = result.table.map(function(j){
+                            return [j.name, j]
+                        })
+                        keyTable = _.object(keyVals)
+                        expect(keyTable["liverbird"].wins).toBe(-1)
+                        expect(keyTable["liverbird"].losses).toBe(0)
+                        expect(keyTable["soccerpidgeons"].wins).toBe(0)
+                        expect(keyTable["soccerpidgeons"].losses).toBe(-1)
+                        expect(keyTable["soccerpidgeons"].draws).toBe(1)
+                        expect(keyTable["liverbird"].draws).toBe(1)
+
+                    })
+                    it("should correctly update game", function(){
+                        expect(result.games[3].outcome).toBe("T")
+                    })
+                })
+            })
         })
         describe("addGameToTable", function(){
             describe("scenario test", function(){
@@ -31,7 +82,7 @@ define(function (require, exports, module) {
                         beforeEach(function(){
                             game = {home: 'liverbird', away: 'soccerpidgeons', outcome: 'W'}
                             result = instance.addGameToTable(mockTable, game)
-                            keyVals = result.map(function(j){ 
+                            keyVals = result.map(function(j){
                                 return [j.name, j]
                             })
                             keyTable = _.object(keyVals)
@@ -51,7 +102,7 @@ define(function (require, exports, module) {
                         beforeEach(function(){
                             game = {home: 'liverbird', away: 'soccerpidgeons', outcome: 'T'}
                             result = instance.addGameToTable(mockTable, game)
-                            keyVals = result.map(function(j){ 
+                            keyVals = result.map(function(j){
                                 return [j.name, j]
                             })
                             keyTable = _.object(keyVals)
@@ -71,7 +122,7 @@ define(function (require, exports, module) {
                         beforeEach(function(){
                             game = {home: 'liverbird', away: 'soccerpidgeons', outcome: 'L'}
                             result = instance.addGameToTable(mockTable, game)
-                            keyVals = result.map(function(j){ 
+                            keyVals = result.map(function(j){
                                 return [j.name, j]
                             })
                             keyTable = _.object(keyVals)
@@ -111,7 +162,7 @@ define(function (require, exports, module) {
                         beforeEach(function(){
                             game = {home: 'liverbird', away: 'soccerpidgeons', outcome: 'W'}
                             result = instance.removeGameFromTable(mockTable, game)
-                            keyVals = result.map(function(j){ 
+                            keyVals = result.map(function(j){
                                 return [j.name, j]
                             })
                             keyTable = _.object(keyVals)
@@ -131,7 +182,7 @@ define(function (require, exports, module) {
                         beforeEach(function(){
                             game = {home: 'liverbird', away: 'soccerpidgeons', outcome: 'T'}
                             result = instance.removeGameFromTable(mockTable, game)
-                            keyVals = result.map(function(j){ 
+                            keyVals = result.map(function(j){
                                 return [j.name, j]
                             })
                             keyTable = _.object(keyVals)
@@ -151,7 +202,7 @@ define(function (require, exports, module) {
                         beforeEach(function(){
                             game = {home: 'liverbird', away: 'soccerpidgeons', outcome: 'L'}
                             result = instance.removeGameFromTable(mockTable, game)
-                            keyVals = result.map(function(j){ 
+                            keyVals = result.map(function(j){
                                 return [j.name, j]
                             })
                             keyTable = _.object(keyVals)
@@ -171,46 +222,6 @@ define(function (require, exports, module) {
             })
         })
 
-        describe("updateSeasonWithGame", function(){
-            describe("scenario test", function(){
-                describe("when given season and transitionState", function(){
-                    var mockSeason
-                    beforeEach(function(){
-                        mockSeason = {
-                            table: [
-                                {name: 'liverbird', wins:4, losses:5, draws: 1},
-                                {name: 'soccerpidgeons', wins:7, losses:3, draws: 4}
-                            ],
-                            games: [
-                                {home:'liverbird', away:'soccerpidgeons', outcome: "W"},
-                                {home:'liverbird', away:'soccerpidgeons', outcome: "L"},
-                                {away:'liverbird', home:'soccerpidgeons', outcome: "T"},
-                                {away:'liverbird', home:'soccerpidgeons', outcome: "W"}
-
-                            ]
-                        }
-                        
-                    })
-                    describe("with win transition", function(){
-                        var mockTransition, result
-                        beforeEach(function(){
-                            mockTransition = {
-                                outcome: "W",
-                                probability: .2,
-                                gameIndex: 1
-                            }
-                            result = instance
-                                .updateSeasonWithGame(mockSeason, mockTransition)
-                        })
-                        it("should return season games with updated data from transitionState", function(){
-                        })
-                        it("should return season table with updated data from transitionState", function(){
-                        })
-                    })
-                })
-            })
-        })
-            
         describe("generateRandomTransition", function(){
 
             describe("scenario test", function(){
@@ -242,7 +253,7 @@ define(function (require, exports, module) {
 
                         result = instance
                             .generatePossibleTransition(current, selectRG,
-                                rGameOutcome, p) 
+                                rGameOutcome, p)
 
                     })
 
@@ -327,7 +338,7 @@ define(function (require, exports, module) {
                     }
 
                     _ = mockUnderscore()
-                    
+
                     instance = require('src/seasons')(_)
                 })
                 describe("when _.random() returns 0", function(){
@@ -335,7 +346,7 @@ define(function (require, exports, module) {
                     beforeEach(function(){
                         _.setOutput(0)
                         result = instance.randomGameOutcomeSoccer()
-                    }) 
+                    })
                     it("should return 'W'", function(){
                         expect(result).toBe("W")
                     })
@@ -345,7 +356,7 @@ define(function (require, exports, module) {
                     beforeEach(function(){
                         _.setOutput(1)
                         result = instance.randomGameOutcomeSoccer()
-                    }) 
+                    })
                     it("should return 'L'", function(){
                         expect(result).toBe("L")
                     })
@@ -355,7 +366,7 @@ define(function (require, exports, module) {
                     beforeEach(function(){
                         _.setOutput(2)
                         result = instance.randomGameOutcomeSoccer()
-                    }) 
+                    })
                     it("should return 'T'", function(){
                         expect(result).toBe("T")
                     })
@@ -370,19 +381,11 @@ define(function (require, exports, module) {
                 describe("when given a list of games", function(){
                     var gamesList, results
                     beforeEach(function(){
-                        gamesList = [
-                            {home:'liverbird', away:'soccerpidgeons'},
-                            {home:'liverbird', away:'soccerpidgeons'},
-                            {home:'liverbird', away:'soccerpidgeons'},
-                            {home:'liverbird', away:'soccerpidgeons'},
-                            {away:'liverbird', home:'soccerpidgeons'},
-                            {away:'liverbird', home:'soccerpidgeons'},
-                            {away:'liverbird', home:'soccerpidgeons'},
-                        ]
+                        gamesList = mockSeason.games
 
                         results = instance.generateFinalGamesList(gamesList)
                     })
-                    
+
                     it("should change all the outcomes in games list to reflect home wins", function(){
 
                         var expected = results.reduce(function(agg, game){
@@ -405,20 +408,9 @@ define(function (require, exports, module) {
                     var results, resultsTable, gamesList
                     beforeEach(function(){
 
-                        resultsTable = [
-                            {name: 'liverbird', wins:0, losses:0, draws: 0},
-                            {name: 'soccerpidgeons', wins:0, losses:0, draws: 0}
-                        ]
-                        
-                        gamesList = [
-                            {home:'liverbird', away:'soccerpidgeons'},
-                            {home:'liverbird', away:'soccerpidgeons'},
-                            {home:'liverbird', away:'soccerpidgeons'},
-                            {home:'liverbird', away:'soccerpidgeons'},
-                            {away:'liverbird', home:'soccerpidgeons'},
-                            {away:'liverbird', home:'soccerpidgeons'},
-                            {away:'liverbird', home:'soccerpidgeons'},
-                        ]
+                        resultsTable = mockSeason.table
+
+                        gamesList = mockSeason.games
 
                         results = instance.generateFinalTable(resultsTable, gamesList)
 
