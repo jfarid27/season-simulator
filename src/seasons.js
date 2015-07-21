@@ -41,7 +41,12 @@ define(function (require, exports, module) {
                     exports.selectRandomGame, exports.randomGameOutcomeSoccerOdds,
                     exports.tableTransitionProbabilityEqual)
             }
-            var probabilityOfMove = exports.tableTransitionProbabilityEqual
+            var probabilityOfMove = function() {
+                /* Used since the state odds of W/L/T is 1 because
+                   of equal probabilities
+                */
+                return 1 
+            } 
 
             var updateSeason = function(current, prev){
                 var newSeason = exports.updateSeasonWithGame(current, prev,
