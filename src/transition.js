@@ -16,8 +16,7 @@ define(function (require, exports, module) {
         exports.simulation = function(startState, transition, updateState, observation,
             observationCounts, stateOdds, numSteps, cb){
             /* Runs MCMC algorithm using set exports.metropolis function. Observations are
-               updated each round since transition cannot generate rejectable move. Observable
-               returns both 1 and 0
+               updated each round since transition cannot generate rejectable move.
             */
             var currentState = startState
             var observationCounts
